@@ -86,6 +86,31 @@ module Omnibus
     end
     expose :command
 
+    # ===> Apica specific function <===
+    #
+    # Execute the given bundle command against the embedded Python's pip. This
+    # command assumes the +pip+ package is installed and in the embedded Python.
+    # You should add a dependency on the +pip+ software definition if you
+    # want to use this command.
+    #
+    # @example
+    #   pip 'install supervisor'
+    #
+    # @param (see #command)
+    # @return (see #command)
+    def pip(command, options = {})
+      bin = if windows?
+              windows_safe_path(install_dir, "embedded/Scripts/pip.exe")
+            else
+              embedded_bin("pip")
+            end
+
+      build_commands << BuildCommand.new("pip `#{command}'") do
+        shellout!("#{bin} #{command}", options)
+      end
+    end
+    expose :pip
+
     #
     # Execute the given make command. When present, this method will prefer the
     # use of +gmake+ over +make+. If applicable, this method will also set
